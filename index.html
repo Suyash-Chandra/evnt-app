@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evnt — Discover & Host Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ============================================================ NAV ============================================================ -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a class="nav-logo" onclick="showPage('home')">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 2v4" />
+              <path d="M16 2v4" />
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M3 10h18" />
+            </svg>
+          </span>
+          evnt
+        </a>
+
+        <nav class="nav-links">
+          <!-- BACKEND: Mark active link based on current route -->
+          <a onclick="showPage('home')" id="nav-home" class="active">Discover</a>
+          <a onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</a>
+          <a onclick="showPage('create')" id="nav-create">Create Event</a>
+        </nav>
+
+        <div class="nav-right">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('auth')">Sign in</button>
+          <div class="dropdown" id="user-dropdown" style="display:none;">
+            <div style="position:relative; display:inline-block;" onclick="toggleDropdown()">
+              <div class="avatar" id="user-avatar">JS</div>
+              <!-- BACKEND: Show notification dot if user has unread notifications -->
+              <div class="notif-dot" id="notif-dot" style="display:none;"></div>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-header" id="dropdown-username">Jake Smith</div>
+              <button class="dropdown-item" onclick="showPage('profile');closeDropdown()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+                My Profile
+              </button>
+              <button class="dropdown-item" onclick="showPage('dashboard');closeDropdown()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="7" height="9" x="3" y="3" rx="1" />
+                  <rect width="7" height="5" x="14" y="3" rx="1" />
+                  <rect width="7" height="9" x="14" y="12" rx="1" />
+                  <rect width="7" height="5" x="3" y="16" rx="1" />
+                </svg>
+                Dashboard
+              </button>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item danger" onclick="handleLogout()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showPage('create')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Host Event
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================ HOME PAGE ============================================================ -->
+  <div id="page-home" class="page active">
+    <div class="container">
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-eyebrow">
+          <span></span>
+          500+ events happening this week
+        </div>
+        <h1>Events worth<br><em>showing up for</em></h1>
+        <p>Discover curated events, connect with your community, and create experiences people remember.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg"
+            onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">
+            Explore events
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+          <button class="btn btn-outline btn-lg" onclick="showPage('create')">Host an event</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-num">48k+</div>
+            <div class="stat-label">Events hosted</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">1.2M</div>
+            <div class="stat-label">Tickets booked</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">320+</div>
+            <div class="stat-label">Cities</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">4.9★</div>
+            <div class="stat-label">Avg. rating</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEARCH -->
+      <div class="search-wrap">
+        <div class="search-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input type="text" placeholder="Search events, organizers, topics..." id="search-input" />
+          <button class="btn btn-primary btn-sm" style="border-radius:99px;">Search</button>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filter-row" id="filter-row">
+        <select id="category-filter" class="filter-select">
+          <option value="">All Categories</option>
+        </select>
+        <select id="type-filter" class="filter-select">
+          <option value="">All Types</option>
+          <option value="online">Online</option>
+          <option value="offline">Offline</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+        <button class="chip active" onclick="app.loadEvents()">All Events</button>
+        <button class="chip" onclick="app.loadEvents({featured: true})">Featured</button>
+        <button class="chip" onclick="app.loadEvents({type: 'online'})">Online</button>
+        <button class="chip" onclick="app.loadEvents({category: 'conference'})">Conference</button>
+      </div>
+
+      <!-- FEATURED EVENT -->
+      <div class="featured-banner" onclick="showEventDetail(sampleEvents[0])" id="featured-banner">
+        <div>
+          <div class="featured-label">⭐ Featured this week</div>
+          <h2>Global AI Summit<br>& Networking Night</h2>
+          <div class="featured-banner-meta">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:4px;">
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            Fri, Mar 14 · 6:00 PM &nbsp;|&nbsp;
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:4px;">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            San Francisco, CA &nbsp;|&nbsp; 342 going
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span
+              style="padding:5px 12px;background:rgba(255,255,255,.15);border-radius:99px;font-size:12px;font-weight:500;">Artificial
+              Intelligence</span>
+            <span
+              style="padding:5px 12px;background:rgba(255,255,255,.15);border-radius:99px;font-size:12px;font-weight:500;">Networking</span>
+            <span
+              style="padding:5px 12px;background:rgba(255,255,255,.15);border-radius:99px;font-size:12px;font-weight:500;">$45</span>
+          </div>
+        </div>
+        <div class="featured-emoji">🤖</div>
+      </div>
+
+      <!-- EVENTS SECTION -->
+      <section id="events-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Upcoming events</div>
+            <div class="section-sub" id="events-count">Showing 9 events</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="21" y1="10" x2="3" y2="10" />
+                <line x1="21" y1="6" x2="3" y2="6" />
+                <line x1="21" y1="14" x2="3" y2="14" />
+                <line x1="21" y1="18" x2="3" y2="18" />
+              </svg>
+              Sort
+            </button>
+            <button class="btn btn-outline btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="8" y1="12" x2="20" y2="12" />
+                <line x1="12" y1="18" x2="20" y2="18" />
+              </svg>
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <!-- BACKEND: Render events dynamically from database query
+           API: GET /api/events?filter={filter}&search={query}&page={page}&limit=9
+      -->
+        <div class="events-grid" id="events-grid"></div>
+
+        <div style="text-align:center;padding:8px 0 60px;">
+          <button class="btn btn-outline btn-lg" onclick="loadMoreEvents()">
+            Load more events
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ EVENT DETAIL PAGE ============================================================ -->
+  <div id="page-detail" class="page">
+    <div class="event-detail">
+      <!-- BACKEND: Populate from API: GET /api/events/:eventId -->
+      <button class="btn btn-ghost btn-sm" onclick="showPage('home')" style="margin-bottom:20px;padding-left:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Back to events
+      </button>
+
+      <div class="event-detail-cover" id="detail-cover"></div>
+
+      <div class="event-detail-grid">
+        <div>
+          <div class="event-detail-title" id="detail-title"></div>
+
+          <div class="event-detail-organizer">
+            <div class="org-avatar" id="detail-org-avatar"></div>
+            <div class="org-info">
+              <div class="org-name" id="detail-org-name"></div>
+              <div class="org-role">Event Organizer · <a href="#" style="color:var(--text-2);">View profile</a></div>
+            </div>
+            <button class="btn btn-outline btn-sm">Follow</button>
+          </div>
+
+          <div class="detail-info-row">
+            <div class="detail-info-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </div>
+            <div>
+              <div class="detail-info-label">Date & Time</div>
+              <div class="detail-info-value" id="detail-date"></div>
+              <div class="detail-info-sub" id="detail-time"></div>
+            </div>
+          </div>
+
+          <div class="detail-info-row">
+            <div class="detail-info-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </div>
+            <div>
+              <div class="detail-info-label">Location</div>
+              <div class="detail-info-value" id="detail-location"></div>
+              <div class="detail-info-sub" id="detail-location-sub"></div>
+            </div>
+          </div>
+
+          <div class="detail-info-row">
+            <div class="detail-info-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div>
+              <div class="detail-info-label">Attendees</div>
+              <div class="detail-info-value" id="detail-attendees"></div>
+              <div class="detail-info-sub" id="detail-capacity"></div>
+            </div>
+          </div>
+
+          <div
+            style="margin-top:28px;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;">
+            About this event</div>
+          <div class="event-description" id="detail-description"></div>
+
+          <div class="event-tags" id="detail-tags"></div>
+        </div>
+
+        <!-- RSVP SIDEBAR -->
+        <div>
+          <div class="rsvp-card">
+            <div class="rsvp-price" id="rsvp-price"></div>
+            <div class="rsvp-price-sub" id="rsvp-price-sub"></div>
+
+            <div class="attendee-preview">
+              <div class="attendee-avatars" id="rsvp-attendees-preview"></div>
+              <div class="attendee-preview-label"><strong id="rsvp-count"></strong> going</div>
+            </div>
+
+            <!-- BACKEND: Connect to POST /api/events/:eventId/rsvp -->
+            <button class="going-btn" id="rsvp-btn" onclick="handleRSVP()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Register to attend
+            </button>
+            <button class="share-btn" onclick="handleShare()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              Share event
+            </button>
+
+            <div class="rsvp-divider"></div>
+
+            <div style="font-size:12px;color:var(--text-3);line-height:1.6;">
+              <p>Registration closes 1 hour before event starts.</p>
+              <p style="margin-top:6px;">Questions? <a href="#" style="color:var(--text);font-weight:600;">Contact
+                  organizer</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ ORGANIZER DASHBOARD ============================================================ -->
+  <div id="page-dashboard" class="page">
+    <div class="container">
+      <div class="dashboard">
+        <div class="dashboard-header">
+          <div>
+            <h1 id="dashboard-header-name">Good evening 👋</h1>
+            <p>Here's what's happening with your events</p>
+          </div>
+          <button class="btn btn-primary" onclick="showPage('create')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New event
+          </button>
+        </div>
+
+        <!-- STATS -->
+        <!-- BACKEND: Fetch from GET /api/organizer/stats — replace hardcoded numbers -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-label">Total Events</div>
+            <div class="stat-card-value">12</div>
+            <div class="stat-card-trend trend-up">↑ 3 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Total Attendees</div>
+            <div class="stat-card-value">1,847</div>
+            <div class="stat-card-trend trend-up">↑ 12% vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Revenue</div>
+            <div class="stat-card-value">$9,420</div>
+            <div class="stat-card-trend trend-up">↑ 8% vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Avg. Rating</div>
+            <div class="stat-card-value">4.8★</div>
+            <div class="stat-card-trend trend-up">From 142 reviews</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div>
+            <!-- MY EVENTS TABLE -->
+            <div class="table-card">
+              <div class="table-header">
+                <h3>My Events</h3>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-ghost btn-sm">Export</button>
+                  <button class="btn btn-outline btn-sm" onclick="showPage('create')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    New
+                  </button>
+                </div>
+              </div>
+              <!-- BACKEND: Fetch from GET /api/organizer/events — paginate as needed -->
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Attendees</th>
+                    <th>Status</th>
+                    <th>Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-events-table">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="side-widgets">
+            <!-- RECENT SIGNUPS -->
+            <div class="widget-card">
+              <h3>Recent sign-ups</h3>
+              <!-- BACKEND: Real-time from GET /api/organizer/recent-signups — use websocket for live updates -->
+              <div id="recent-signups"></div>
+            </div>
+
+            <!-- MINI CHART -->
+            <div class="widget-card">
+              <h3>Registrations this week</h3>
+              <div class="mini-chart" id="mini-chart"></div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                <span style="font-size:11px;color:var(--text-3);">Mon</span>
+                <span style="font-size:11px;color:var(--text-3);">Tue</span>
+                <span style="font-size:11px;color:var(--text-3);">Wed</span>
+                <span style="font-size:11px;color:var(--text-3);">Thu</span>
+                <span style="font-size:11px;color:var(--text-3);">Fri</span>
+                <span style="font-size:11px;color:var(--text-3);">Sat</span>
+                <span style="font-size:11px;color:var(--text-3);">Sun</span>
+              </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="widget-card">
+              <h3>Quick actions</h3>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-outline"
+                  style="justify-content:flex-start;border-radius:var(--radius);gap:10px;width:100%;"
+                  onclick="showPage('create')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Create new event
+                </button>
+                <button class="btn btn-outline"
+                  style="justify-content:flex-start;border-radius:var(--radius);gap:10px;width:100%;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export attendees
+                </button>
+                <button class="btn btn-outline"
+                  style="justify-content:flex-start;border-radius:var(--radius);gap:10px;width:100%;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  Send announcement
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ CREATE EVENT PAGE ============================================================ -->
+  <div id="page-create" class="page">
+    <div class="create-event">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('dashboard')" style="margin-bottom:20px;padding-left:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Back
+      </button>
+      <h1>Create a new event</h1>
+      <p>Fill in the details below to publish your event to the world.</p>
+
+      <!-- BACKEND: On submit, POST to /api/events with multipart/form-data -->
+      <form id="create-event-form" onsubmit="handleCreateEvent(event)">
+
+        <!-- BASIC INFO -->
+        <div class="form-section">
+          <div class="form-section-title">Basic Information</div>
+
+          <div class="form-group">
+            <label class="form-label">Event Title *</label>
+            <input type="text" class="form-input" placeholder="Give your event a catchy name..." required
+              id="ev-title" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea class="form-textarea" placeholder="What's this event about? What can attendees expect?"
+              id="ev-desc" rows="4" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <!-- BACKEND: Populate categories from /api/categories -->
+              <select class="form-select" id="ev-category" required>
+                <option value="">Select category</option>
+                <option value="tech">Technology</option>
+                <option value="music">Music</option>
+                <option value="food">Food & Drink</option>
+                <option value="art">Arts & Culture</option>
+                <option value="sports">Sports & Fitness</option>
+                <option value="wellness">Wellness</option>
+                <option value="business">Business</option>
+                <option value="education">Education</option>
+                <option value="social">Social</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Event Type</label>
+              <select class="form-select" id="ev-type">
+                <option value="in-person">In-Person</option>
+                <option value="online">Online</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Cover Image</label>
+            <!-- BACKEND: Connect to your file storage (S3, Cloudinary, etc.) -->
+            <div class="cover-upload" onclick="document.getElementById('ev-image').click()">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+              <span>Click to upload cover image</span>
+              <span style="font-size:12px;color:var(--text-3);">PNG, JPG up to 10MB · Recommended: 1920×1080</span>
+            </div>
+            <input type="file" id="ev-image" style="display:none" accept="image/*" onchange="handleImageUpload(this)" />
+          </div>
+        </div>
+
+        <!-- DATE & LOCATION -->
+        <div class="form-section">
+          <div class="form-section-title">Date & Location</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start Date & Time *</label>
+              <!-- BACKEND: Store as UTC timestamp in database -->
+              <input type="datetime-local" class="form-input" id="ev-start" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date & Time *</label>
+              <input type="datetime-local" class="form-input" id="ev-end" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Timezone</label>
+              <!-- BACKEND: Auto-detect from user's browser or stored preferences -->
+              <select class="form-select" id="ev-timezone">
+                <option value="America/New_York">Eastern Time (ET)</option>
+                <option value="America/Chicago">Central Time (CT)</option>
+                <option value="America/Denver">Mountain Time (MT)</option>
+                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="Europe/London">GMT / BST</option>
+                <option value="Europe/Paris">CET / CEST</option>
+                <option value="Asia/Kolkata">IST (India)</option>
+                <option value="Asia/Tokyo">JST (Japan)</option>
+                <option value="Australia/Sydney">AEST (Sydney)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Capacity</label>
+              <input type="number" class="form-input" placeholder="Unlimited" min="1" id="ev-capacity" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ticket Price (USD)</label>
+              <input type="number" class="form-input" placeholder="0 = Free" min="0" step="0.01" id="ev-price" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Venue Name</label>
+            <input type="text" class="form-input" placeholder="e.g. Moscone Center" id="ev-venue" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Address</label>
+            <!-- BACKEND: Optionally integrate Google Places Autocomplete API for address suggestions -->
+            <input type="text" class="form-input" placeholder="747 Howard St, San Francisco, CA 94103"
+              id="ev-address" />
+          </div>
+
+          <div class="form-group" id="online-link-group" style="display:none;">
+            <label class="form-label">Online Meeting Link</label>
+            <!-- BACKEND: Optionally encrypt this URL and only show to registered attendees -->
+            <input type="url" class="form-input" placeholder="https://zoom.us/j/..." id="ev-meeting-link" />
+          </div>
+        </div>
+
+        <!-- TICKETS -->
+        <div class="form-section">
+          <div class="form-section-title">Tickets & Registration</div>
+
+          <div id="ticket-list">
+            <!-- Ticket rows populated by JS -->
+          </div>
+
+          <button type="button" class="btn btn-outline btn-sm" onclick="addTicket()"
+            style="border-radius:var(--radius);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add ticket type
+          </button>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="form-section">
+          <div class="form-section-title">Event Settings</div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <label>Require approval</label>
+              <p>Manually approve each registration request</p>
+            </div>
+            <!-- BACKEND: Store as boolean in events table: require_approval -->
+            <button type="button" class="toggle" id="toggle-approval" onclick="toggleSetting(this)"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <label>Show attendee list</label>
+              <p>Let attendees see who else is coming</p>
+            </div>
+            <!-- BACKEND: Store as boolean: show_attendees -->
+            <button type="button" class="toggle on" id="toggle-attendees" onclick="toggleSetting(this)"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <label>Send reminders</label>
+              <p>Email attendees 24h and 1h before the event</p>
+            </div>
+            <!-- BACKEND: Triggers scheduled email jobs: send_reminders -->
+            <button type="button" class="toggle on" id="toggle-reminders" onclick="toggleSetting(this)"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <label>Enable waitlist</label>
+              <p>Allow people to join a waitlist when sold out</p>
+            </div>
+            <!-- BACKEND: Store as boolean: enable_waitlist -->
+            <button type="button" class="toggle" id="toggle-waitlist" onclick="toggleSetting(this)"></button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline btn-lg" onclick="saveDraft()">Save as draft</button>
+          <button type="submit" class="btn btn-primary btn-lg">
+            Publish event
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ PROFILE PAGE ============================================================ -->
+  <div id="page-profile" class="page">
+    <div class="container">
+      <div class="profile-page">
+        <div class="profile-cover"></div>
+        <div class="profile-info-row">
+          <div class="profile-avatar-wrap">
+            <!-- BACKEND: Fetch from GET /api/users/:userId -->
+            <div class="profile-avatar" id="profile-avatar-display">JS</div>
+          </div>
+          <div style="flex:1;padding:0 16px;">
+            <div class="profile-name" id="profile-name-display">Jake Smith</div>
+            <div class="profile-handle" id="profile-handle">@jakesmith · Member since Jan 2024</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-outline btn-sm" onclick="openModal('edit-profile')">Edit profile</button>
+          </div>
+        </div>
+
+        <!-- BIO SECTION -->
+        <div style="margin-bottom:28px;">
+          <p style="font-size:15px;color:var(--text-2);line-height:1.7;" id="profile-bio">
+            <!-- BACKEND: Fetch bio from users.bio column -->
+            Passionate about tech, design, and building communities. Based in San Francisco.
+          </p>
+          <div style="display:flex;gap:20px;margin-top:14px;">
+            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">12</strong> <span
+                style="color:var(--text-3);">events hosted</span></div>
+            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">48</strong> <span
+                style="color:var(--text-3);">events attended</span></div>
+            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">342</strong> <span
+                style="color:var(--text-3);">followers</span></div>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="profile-tab active" onclick="switchProfileTab(this, 'attending')">Attending</button>
+          <button class="profile-tab" onclick="switchProfileTab(this, 'hosted')">Hosted</button>
+          <button class="profile-tab" onclick="switchProfileTab(this, 'past')">Past events</button>
+          <button class="profile-tab" onclick="switchProfileTab(this, 'saved')">Saved</button>
+        </div>
+
+        <!-- BACKEND: Fetch events from /api/users/:userId/events?type=attending|hosted|past|saved -->
+        <div id="profile-tab-content">
+          <div class="events-grid" id="profile-events-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ AUTH MODAL ============================================================ -->
+  <div class="modal-overlay" id="modal-auth">
+    <div class="modal auth-modal">
+      <button class="modal-close" onclick="closeModal('auth')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-logo">
+        <div class="dot">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+        </div>evnt
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign in</button>
+        <button class="modal-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+      </div>
+      <form id="form-signin" onsubmit="app.handleLogin(event)">
+        <div class="social-btn" onclick="app.showToast('Google Sign-In coming soon!','info')">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </div>
+        <div class="modal-divider">or</div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signin-email" required autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="password-wrap">
+            <input type="password" class="form-input" placeholder="••••••••" id="signin-password" required autocomplete="current-password"/>
+          </div>
+        </div>
+        <div style="text-align:right;margin-bottom:16px;">
+          <a href="#" style="font-size:13px;color:var(--text-2);">Forgot password?</a>
+        </div>
+        <button type="submit" class="modal-submit" id="signin-submit-btn">Sign in</button>
+      </form>
+      <form id="form-signup" style="display:none;" onsubmit="app.handleSignup(event)">
+        <div class="social-btn" onclick="app.showToast('Google Sign-In coming soon!','info')">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Sign up with Google
+        </div>
+        <div class="modal-divider">or</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First name *</label>
+            <input type="text" class="form-input" placeholder="Jake" id="signup-firstname" required autocomplete="given-name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-input" placeholder="Smith" id="signup-lastname" autocomplete="family-name"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signup-email" required autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input type="password" class="form-input" placeholder="At least 6 characters" id="signup-password" required minlength="6" autocomplete="new-password"/>
+        </div>
+        <button type="submit" class="modal-submit" id="signup-submit-btn">Create account</button>
+        <p style="font-size:12px;color:var(--text-3);margin-top:14px;text-align:center;line-height:1.6;">
+          By creating an account you agree to our <a href="#" style="color:var(--text-2);">Terms</a> and <a href="#" style="color:var(--text-2);">Privacy Policy</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================ EVENT DETAIL MODAL ============================================================ -->
+  <div class="modal-overlay" id="modal-event-detail">
+    <div class="modal modal-lg">
+      <button class="modal-close" onclick="closeModal('event-detail')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <div class="modal-body">
+        <!-- Content will be dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ TOAST CONTAINER ============================================================ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Legacy JavaScript removed - now using app.js -->
+
+</body>
+
+</html>
