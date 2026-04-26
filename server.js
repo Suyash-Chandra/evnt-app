@@ -92,7 +92,7 @@ app.get("/api/categories", async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-/* ----------------------- EVENTS — PUBLIC --------------- */
+/* ----------------------- EVENTS ï¿½ PUBLIC --------------- */
 app.get("/api/events", async (req, res) => {
     try {
         const { category, type, search, featured, limit = 9, offset = 0 } = req.query;
@@ -136,7 +136,7 @@ app.get("/api/events/:id", async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-/* ----------------------- EVENTS — PROTECTED ------------ */
+/* ----------------------- EVENTS ï¿½ PROTECTED ------------ */
 app.post("/api/events", auth, async (req, res) => {
     const { title, description, category, type, startDate, endDate,
             location, address, capacity, price = 0, imageUrl,
@@ -152,7 +152,7 @@ app.post("/api/events", auth, async (req, res) => {
                                 location,address,capacity,price,image_url,status,
                                 require_approval,show_attendees,send_reminders,enable_waitlist)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'published',?,?,?,?)`,
-            [req.user.id, title, description, cat?.id || null, type || "offline",
+            [req.user.id, title, description, cat?.id || null, (modeMap => modeMap[type] || 'offline')({"in-person":"offline","offline":"offline","online":"online","hybrid":"hybrid"}),
              startDate, endDate, location, address, capacity || null,
              parseFloat(price) || 0, imageUrl || null,
              requireApproval ? 1 : 0, showAttendees !== false ? 1 : 0,

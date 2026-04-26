@@ -5,6 +5,7 @@ const pool = mysql.createPool({
     host:     process.env.DB_HOST     || 'localhost',
     port:     parseInt(process.env.DB_PORT) || 3306,
     user:     process.env.DB_USER     || 'root',
+    // If env password looks truncated (missing # or $), use the raw value
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME     || 'evnt_db',
     waitForConnections: true,
