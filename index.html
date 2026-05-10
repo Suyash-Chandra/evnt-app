@@ -100,7 +100,7 @@
       <section class="hero">
         <div class="hero-eyebrow">
           <span></span>
-          500+ events happening this week
+          100+ events happening this week
         </div>
         <h1>Events worth<br><em>showing up for</em></h1>
         <p>Discover curated events, connect with your community, and create experiences people remember.</p>
@@ -118,15 +118,15 @@
         </div>
         <div class="hero-stats">
           <div class="stat">
-            <div class="stat-num">48k+</div>
+            <div class="stat-num">10</div>
             <div class="stat-label">Events hosted</div>
           </div>
           <div class="stat">
-            <div class="stat-num">1.2M</div>
+            <div class="stat-num">100</div>
             <div class="stat-label">Tickets booked</div>
           </div>
           <div class="stat">
-            <div class="stat-num">320+</div>
+            <div class="stat-num">10</div>
             <div class="stat-label">Cities</div>
           </div>
           <div class="stat">
@@ -169,7 +169,7 @@
       <!-- FEATURED EVENT -->
       <div class="featured-banner" onclick="showEventDetail(sampleEvents[0])" id="featured-banner">
         <div>
-          <div class="featured-label">⭐ Featured this week</div>
+          <div class="featured-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Featured this week</div>
           <h2>Global AI Summit<br>& Networking Night</h2>
           <div class="featured-banner-meta">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -195,7 +195,7 @@
               style="padding:5px 12px;background:rgba(255,255,255,.15);border-radius:99px;font-size:12px;font-weight:500;">$45</span>
           </div>
         </div>
-        <div class="featured-emoji">🤖</div>
+        <div class="featured-emoji"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="15"/></svg></div>
       </div>
 
       <!-- EVENTS SECTION -->
@@ -380,7 +380,7 @@
       <div class="dashboard">
         <div class="dashboard-header">
           <div>
-            <h1 id="dashboard-header-name">Good evening 👋</h1>
+            <h1 id="dashboard-header-name">Good evening</h1>
             <p>Here's what's happening with your events</p>
           </div>
           <button class="btn btn-primary" onclick="showPage('create')">
@@ -394,27 +394,26 @@
         </div>
 
         <!-- STATS -->
-        <!-- BACKEND: Fetch from GET /api/organizer/stats — replace hardcoded numbers -->
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-card-label">Total Events</div>
-            <div class="stat-card-value">12</div>
-            <div class="stat-card-trend trend-up">↑ 3 this month</div>
+            <div class="stat-card-label">Events Created</div>
+            <div class="stat-card-value" id="stat-total-events">—</div>
+            <div class="stat-card-trend">events you've hosted</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Total Attendees</div>
-            <div class="stat-card-value">1,847</div>
-            <div class="stat-card-trend trend-up">↑ 12% vs last month</div>
+            <div class="stat-card-value" id="stat-total-attendees">—</div>
+            <div class="stat-card-trend">across all your events</div>
           </div>
           <div class="stat-card">
-            <div class="stat-card-label">Revenue</div>
-            <div class="stat-card-value">$9,420</div>
-            <div class="stat-card-trend trend-up">↑ 8% vs last month</div>
+            <div class="stat-card-label">Upcoming Events</div>
+            <div class="stat-card-value" id="stat-upcoming">—</div>
+            <div class="stat-card-trend">events coming up</div>
           </div>
           <div class="stat-card">
-            <div class="stat-card-label">Avg. Rating</div>
-            <div class="stat-card-value">4.8★</div>
-            <div class="stat-card-trend trend-up">From 142 reviews</div>
+            <div class="stat-card-label">Attending</div>
+            <div class="stat-card-value" id="stat-attending">—</div>
+            <div class="stat-card-trend">events you're going to</div>
           </div>
         </div>
 
@@ -462,20 +461,7 @@
               <div id="recent-signups"></div>
             </div>
 
-            <!-- MINI CHART -->
-            <div class="widget-card">
-              <h3>Registrations this week</h3>
-              <div class="mini-chart" id="mini-chart"></div>
-              <div style="display:flex;justify-content:space-between;margin-top:8px;">
-                <span style="font-size:11px;color:var(--text-3);">Mon</span>
-                <span style="font-size:11px;color:var(--text-3);">Tue</span>
-                <span style="font-size:11px;color:var(--text-3);">Wed</span>
-                <span style="font-size:11px;color:var(--text-3);">Thu</span>
-                <span style="font-size:11px;color:var(--text-3);">Fri</span>
-                <span style="font-size:11px;color:var(--text-3);">Sat</span>
-                <span style="font-size:11px;color:var(--text-3);">Sun</span>
-              </div>
-            </div>
+
 
             <!-- QUICK ACTIONS -->
             <div class="widget-card">
@@ -731,47 +717,87 @@
   <div id="page-profile" class="page">
     <div class="container">
       <div class="profile-page">
-        <div class="profile-cover"></div>
-        <div class="profile-info-row">
+
+        <!-- HERO ROW: avatar + actions -->
+        <div class="profile-hero-row">
           <div class="profile-avatar-wrap">
-            <!-- BACKEND: Fetch from GET /api/users/:userId -->
-            <div class="profile-avatar" id="profile-avatar-display">JS</div>
+            <div class="profile-avatar" id="profile-avatar-display">U</div>
           </div>
-          <div style="flex:1;padding:0 16px;">
-            <div class="profile-name" id="profile-name-display">Jake Smith</div>
-            <div class="profile-handle" id="profile-handle">@jakesmith · Member since Jan 2024</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn btn-outline btn-sm" onclick="openModal('edit-profile')">Edit profile</button>
+
+          <div class="profile-hero-actions">
+            <button class="btn btn-ghost btn-sm" onclick="handleLogout()" style="color:var(--text-2);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign out
+            </button>
           </div>
         </div>
 
-        <!-- BIO SECTION -->
-        <div style="margin-bottom:28px;">
-          <p style="font-size:15px;color:var(--text-2);line-height:1.7;" id="profile-bio">
-            <!-- BACKEND: Fetch bio from users.bio column -->
-            Passionate about tech, design, and building communities. Based in San Francisco.
-          </p>
-          <div style="display:flex;gap:20px;margin-top:14px;">
-            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">12</strong> <span
-                style="color:var(--text-3);">events hosted</span></div>
-            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">48</strong> <span
-                style="color:var(--text-3);">events attended</span></div>
-            <div style="font-size:14px;"><strong style="color:var(--text);font-weight:700;">342</strong> <span
-                style="color:var(--text-3);">followers</span></div>
+        <!-- USER INFO BLOCK -->
+        <div class="profile-info-block">
+          <div class="profile-name" id="profile-name-display">Loading...</div>
+          <div class="profile-handle" id="profile-handle">@username</div>
+          <p class="profile-bio-text" id="profile-bio"></p>
+
+          <!-- REAL STATS — populated by loadProfile() from /api/user/profile -->
+          <div class="profile-stats-row">
+            <div class="profile-stat-chip">
+              <span class="profile-stat-num" id="profile-stat-hosted">—</span>
+              <span class="profile-stat-label">events hosted</span>
+            </div>
+            <div class="profile-stat-divider"></div>
+            <div class="profile-stat-chip">
+              <span class="profile-stat-num" id="profile-stat-attended">—</span>
+              <span class="profile-stat-label">events attended</span>
+            </div>
           </div>
         </div>
 
+
+        <!-- TABS -->
         <div class="profile-tabs">
-          <button class="profile-tab active" onclick="switchProfileTab(this, 'attending')">Attending</button>
-          <button class="profile-tab" onclick="switchProfileTab(this, 'hosted')">Hosted</button>
-          <button class="profile-tab" onclick="switchProfileTab(this, 'past')">Past events</button>
-          <button class="profile-tab" onclick="switchProfileTab(this, 'saved')">Saved</button>
+          <button class="profile-tab active" onclick="switchProfileTab(this, 'registered')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            My Registrations
+          </button>
+          <button class="profile-tab" onclick="switchProfileTab(this, 'hosted')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Hosted Events
+          </button>
         </div>
 
-        <!-- BACKEND: Fetch events from /api/users/:userId/events?type=attending|hosted|past|saved -->
+        <!-- TAB CONTENT -->
         <div id="profile-tab-content">
-          <div class="events-grid" id="profile-events-grid"></div>
+
+          <!-- My Registrations -->
+          <div id="profile-tab-registered">
+            <div class="registered-section">
+              <div class="registered-section-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                Upcoming
+              </div>
+              <div class="events-grid" id="profile-upcoming-grid"><div class="empty-state"><p>Loading...</p></div></div>
+            </div>
+            <div class="registered-section">
+              <div class="registered-section-title" style="opacity:0.6;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Past
+              </div>
+              <div class="events-grid" id="profile-past-grid"><div class="empty-state"><p>Loading...</p></div></div>
+            </div>
+          </div>
+
+          <!-- Hosted Events -->
+          <div id="profile-tab-hosted" style="display:none;">
+            <div class="events-grid" id="profile-hosted-grid">
+              <div class="empty-state"><h3>No events hosted yet</h3><p>Create your first event to get started!</p></div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -781,11 +807,21 @@
   <div class="modal-overlay" id="modal-auth">
     <div class="modal auth-modal">
       <button class="modal-close" onclick="closeModal('auth')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
       <div class="modal-logo">
         <div class="dot">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2v4" />
+            <path d="M16 2v4" />
+            <rect width="18" height="18" x="3" y="4" rx="2" />
+            <path d="M3 10h18" />
+          </svg>
         </div>evnt
       </div>
       <div class="modal-tabs">
@@ -794,18 +830,29 @@
       </div>
       <form id="form-signin" onsubmit="app.handleLogin(event)">
         <div class="social-btn" onclick="app.showToast('Google Sign-In coming soon!','info')">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
           Continue with Google
         </div>
         <div class="modal-divider">or</div>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="you@example.com" id="signin-email" required autocomplete="email"/>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signin-email" required
+            autocomplete="email" />
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
           <div class="password-wrap">
-            <input type="password" class="form-input" placeholder="••••••••" id="signin-password" required autocomplete="current-password"/>
+            <input type="password" class="form-input" placeholder="••••••••" id="signin-password" required
+              autocomplete="current-password" />
           </div>
         </div>
         <div style="text-align:right;margin-bottom:16px;">
@@ -815,31 +862,44 @@
       </form>
       <form id="form-signup" style="display:none;" onsubmit="app.handleSignup(event)">
         <div class="social-btn" onclick="app.showToast('Google Sign-In coming soon!','info')">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
           Sign up with Google
         </div>
         <div class="modal-divider">or</div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">First name *</label>
-            <input type="text" class="form-input" placeholder="Jake" id="signup-firstname" required autocomplete="given-name"/>
+            <input type="text" class="form-input" placeholder="Jake" id="signup-firstname" required
+              autocomplete="given-name" />
           </div>
           <div class="form-group">
             <label class="form-label">Last name</label>
-            <input type="text" class="form-input" placeholder="Smith" id="signup-lastname" autocomplete="family-name"/>
+            <input type="text" class="form-input" placeholder="Smith" id="signup-lastname" autocomplete="family-name" />
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Email *</label>
-          <input type="email" class="form-input" placeholder="you@example.com" id="signup-email" required autocomplete="email"/>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signup-email" required
+            autocomplete="email" />
         </div>
         <div class="form-group">
           <label class="form-label">Password *</label>
-          <input type="password" class="form-input" placeholder="At least 6 characters" id="signup-password" required minlength="6" autocomplete="new-password"/>
+          <input type="password" class="form-input" placeholder="At least 6 characters" id="signup-password" required
+            minlength="6" autocomplete="new-password" />
         </div>
         <button type="submit" class="modal-submit" id="signup-submit-btn">Create account</button>
         <p style="font-size:12px;color:var(--text-3);margin-top:14px;text-align:center;line-height:1.6;">
-          By creating an account you agree to our <a href="#" style="color:var(--text-2);">Terms</a> and <a href="#" style="color:var(--text-2);">Privacy Policy</a>
+          By creating an account you agree to our <a href="#" style="color:var(--text-2);">Terms</a> and <a href="#"
+            style="color:var(--text-2);">Privacy Policy</a>
         </p>
       </form>
     </div>
@@ -859,6 +919,116 @@
       <div class="modal-body">
         <!-- Content will be dynamically populated -->
       </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ PAYMENT MODAL ============================================================ -->
+  <div class="modal-overlay" id="modal-payment">
+    <div class="modal payment-modal">
+      <button class="modal-close" onclick="closeModal('payment')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <!-- Payment Header -->
+      <div class="payment-header">
+        <div class="payment-lock-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="payment-title">Secure Payment</div>
+          <div class="payment-subtitle" id="payment-event-name">Event name</div>
+        </div>
+      </div>
+
+      <!-- Card Preview -->
+      <div class="card-preview">
+        <div class="card-preview-chip">
+          <svg width="28" height="22" viewBox="0 0 28 22" fill="none">
+            <rect width="28" height="22" rx="4" fill="#d4a847" opacity="0.9"/>
+            <rect x="2" y="6" width="24" height="10" rx="2" fill="none" stroke="#b8932f" stroke-width="1"/>
+            <line x1="10" y1="6" x2="10" y2="16" stroke="#b8932f" stroke-width="1"/>
+            <line x1="18" y1="6" x2="18" y2="16" stroke="#b8932f" stroke-width="1"/>
+            <line x1="2" y1="11" x2="26" y2="11" stroke="#b8932f" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-preview-logos">
+          <svg width="38" height="24" viewBox="0 0 38 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="15" cy="12" r="10" fill="#EB001B" opacity="0.9"/>
+            <circle cx="23" cy="12" r="10" fill="#F79E1B" opacity="0.9"/>
+            <path d="M19 5.5a10 10 0 0 1 0 13 10 10 0 0 1 0-13z" fill="#FF5F00" opacity="0.9"/>
+          </svg>
+        </div>
+        <div class="card-preview-number" id="card-preview-number">•••• •••• •••• ••••</div>
+        <div class="card-preview-bottom">
+          <div>
+            <div class="card-preview-label">Card Holder</div>
+            <div class="card-preview-value" id="card-preview-name">YOUR NAME</div>
+          </div>
+          <div>
+            <div class="card-preview-label">Expires</div>
+            <div class="card-preview-value" id="card-preview-expiry">MM/YY</div>
+          </div>
+          <div style="margin-left:auto;">
+            <div class="payment-amount-badge" id="payment-amount-badge">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Cardholder Name</label>
+          <input type="text" class="form-input" id="pay-name" placeholder="Name on card" autocomplete="cc-name"
+            oninput="document.getElementById('card-preview-name').textContent = this.value.toUpperCase() || 'YOUR NAME'" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Card Number</label>
+          <div class="card-input-wrap">
+            <svg width="20" height="16" viewBox="0 0 38 24" fill="none" style="flex-shrink:0;opacity:0.5">
+              <rect width="38" height="24" rx="4" fill="currentColor" opacity="0.1"/>
+              <rect x="0" y="8" width="38" height="6" fill="currentColor" opacity="0.3"/>
+            </svg>
+            <input type="text" class="form-input card-number-input" id="pay-card" placeholder="1234 5678 9012 3456"
+              maxlength="19" autocomplete="cc-number" inputmode="numeric"
+              oninput="formatCardNumber(this)" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expiry Date</label>
+            <input type="text" class="form-input" id="pay-expiry" placeholder="MM/YY" maxlength="5"
+              autocomplete="cc-exp" inputmode="numeric"
+              oninput="formatExpiry(this)" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">CVV</label>
+            <input type="text" class="form-input" id="pay-cvv" placeholder="•••" maxlength="4"
+              autocomplete="cc-csc" inputmode="numeric" required />
+          </div>
+        </div>
+
+        <button type="submit" class="modal-submit payment-submit-btn" id="payment-submit-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Pay <span id="payment-btn-amount">$0.00</span>
+        </button>
+
+        <p class="payment-secure-note">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Your payment info is encrypted and secure. This is a demo — no real charge will occur.
+        </p>
+      </form>
     </div>
   </div>
 

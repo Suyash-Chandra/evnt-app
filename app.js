@@ -48,7 +48,7 @@ class EventBookingApp {
     const du = document.getElementById('dropdown-username');
     if (du) du.textContent = `${user.first_name} ${user.last_name || ''}`.trim();
     const dh = document.getElementById('dashboard-header-name');
-    if (dh) dh.textContent = `Good evening, ${user.first_name} ??`;
+    if (dh) dh.textContent = `Good evening, ${user.first_name}`;
   }
 
   async handleLogin(e) {
@@ -57,12 +57,12 @@ class EventBookingApp {
     const email = document.getElementById('signin-email').value.trim();
     const password = document.getElementById('signin-password').value;
     if (!email || !password) return this.showToast('Please fill in all fields', 'error');
-    btn.textContent = 'Signing in…'; btn.disabled = true;
+    btn.textContent = 'Signing in...'; btn.disabled = true;
     try {
       const data = await this.api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
       this.applyAuth(data.user);
       this.closeModal('auth');
-      this.showToast(`Welcome back, ${data.user.first_name}! ??`, 'success');
+      this.showToast(`Welcome back, ${data.user.first_name}!`, 'success');
       this.loadEvents();
     } catch (err) {
       this.showToast(err.message || 'Login failed', 'error');
@@ -78,7 +78,7 @@ class EventBookingApp {
     const lastName = document.getElementById('signup-lastname').value.trim();
     if (!email || !password || !firstName) return this.showToast('Please fill in all required fields', 'error');
     if (password.length < 6) return this.showToast('Password must be at least 6 characters', 'error');
-    btn.textContent = 'Creating…'; btn.disabled = true;
+    btn.textContent = 'Creating...'; btn.disabled = true;
     try {
       await this.api('/api/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, firstName, lastName }) });
       this.showToast('Account created! Please sign in.', 'success');
@@ -132,12 +132,12 @@ class EventBookingApp {
     return `<div class="event-card" onclick="app.showEventDetail(${event.id})">
       ${img}
       <div class="event-card-category" style="background:${color}">${cat?.name || event.category || 'event'}</div>
-      ${event.is_featured ? '<div class="featured-badge">? Featured</div>' : ''}
+      ${event.is_featured ? `<div class="featured-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Featured</div>` : ''}
       <div class="event-card-content">
         <h3 class="event-card-title">${event.title}</h3>
-        <p class="event-card-date">?? ${this.formatDate(event.date_start)}</p>
-        <p class="event-card-location">?? ${event.location || 'Online'}</p>
-        <div class="event-card-meta"><span>?? ${event.attendee_count} attending</span>${spots}</div>
+        <p class="event-card-date"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${this.formatDate(event.date_start)}</p>
+        <p class="event-card-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${event.location || 'Online'}</p>
+        <div class="event-card-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${event.attendee_count} attending</span>${spots}</div>
         <div class="event-card-actions">${price}<button class="btn btn-primary btn-sm">View Details</button></div>
       </div>
     </div>`;
@@ -166,10 +166,10 @@ class EventBookingApp {
       <div class="event-detail-img" ${img}><span class="event-detail-cat" style="background:${color}">${cat?.name || event.category}</span></div>
       <div class="event-detail-content">
         <h2>${event.title}</h2>
-        <div class="detail-meta-row">?? ${this.formatDate(event.date_start)} · ${this.formatTime(event.date_start)}–${this.formatTime(event.date_end)}</div>
-        <div class="detail-meta-row">?? ${event.location || 'Online'}${event.address ? ' · '+event.address : ''}</div>
-        <div class="detail-meta-row">?? Hosted by ${event.organizer_name}</div>
-        <div class="detail-meta-row">?? ${event.attendee_count} attending${event.capacity ? ' · '+Math.max(0,event.capacity-event.attendee_count)+' spots left' : ''}</div>
+        <div class="detail-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${this.formatDate(event.date_start)} Â· ${this.formatTime(event.date_start)}â€“${this.formatTime(event.date_end)}</div>
+        <div class="detail-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${event.location || 'Online'}${event.address ? ' Â· '+event.address : ''}</div>
+        <div class="detail-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Hosted by ${event.organizer_name}</div>
+        <div class="detail-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${event.attendee_count} attending${event.capacity ? ' Â· '+Math.max(0,event.capacity-event.attendee_count)+' spots left' : ''}</div>
         ${event.description ? `<div class="detail-desc"><h4>About</h4><p>${event.description}</p></div>` : ''}
         <div class="detail-actions">
           <span class="detail-price">${event.price > 0 ? '$'+parseFloat(event.price).toFixed(2) : 'Free'}</span>
@@ -183,17 +183,104 @@ class EventBookingApp {
 
   async handleRSVP() {
     if (!this.isLoggedIn) { this.closeModal('event-detail'); return this.openModal('auth'); }
+    const event = this.currentEventDetail;
+    if (!event) return;
+
+    // If it's a paid event, show payment modal instead of registering directly
+    if (parseFloat(event.price) > 0) {
+      this.closeModal('event-detail');
+      const price = parseFloat(event.price).toFixed(2);
+      const nameEl = document.getElementById('payment-event-name');
+      const badgeEl = document.getElementById('payment-amount-badge');
+      const btnAmtEl = document.getElementById('payment-btn-amount');
+      if (nameEl) nameEl.textContent = event.title;
+      if (badgeEl) badgeEl.textContent = `$${price}`;
+      if (btnAmtEl) btnAmtEl.textContent = `$${price}`;
+      // Reset form
+      const form = document.getElementById('payment-form');
+      if (form) form.reset();
+      document.getElementById('card-preview-name').textContent = 'YOUR NAME';
+      document.getElementById('card-preview-number').textContent = '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022';
+      document.getElementById('card-preview-expiry').textContent = 'MM/YY';
+      this.openModal('payment');
+      return;
+    }
+
+    // Free event â€” register directly
     const btn = document.getElementById('rsvp-modal-btn');
-    if (btn) { btn.textContent = 'Registering…'; btn.disabled = true; }
+    if (btn) { btn.textContent = 'Registering...'; btn.disabled = true; }
     try {
-      await this.api(`/api/events/${this.currentEventDetail.id}/register`, { method: 'POST' });
-      this.showToast('Registered successfully! ??', 'success');
-      if (btn) { btn.textContent = '? Registered'; btn.style.background = '#1a7a4a'; }
+      await this.api(`/api/events/${event.id}/register`, { method: 'POST' });
+      this.showToast('You\'re registered!', 'success');
+      if (btn) { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><polyline points="20 6 9 17 4 12"/></svg>Registered'; btn.style.background = '#1a7a4a'; }
       this.loadEvents();
     } catch (err) {
       this.showToast(err.message || 'Registration failed', 'error');
       if (btn) { btn.textContent = 'Register to attend'; btn.disabled = false; }
     }
+  }
+
+  async handlePaymentSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('payment-submit-btn');
+    const cardNum = document.getElementById('pay-card')?.value.replace(/\s/g, '');
+    const expiry = document.getElementById('pay-expiry')?.value;
+    const cvv = document.getElementById('pay-cvv')?.value;
+    const name = document.getElementById('pay-name')?.value.trim();
+
+    // Basic validation
+    if (!name) return this.showToast('Please enter the cardholder name', 'error');
+    if (!cardNum || cardNum.length < 13) return this.showToast('Please enter a valid card number', 'error');
+    if (!expiry || expiry.length < 5) return this.showToast('Please enter a valid expiry date', 'error');
+    if (!cvv || cvv.length < 3) return this.showToast('Please enter a valid CVV', 'error');
+
+    if (btn) {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Processing...';
+      btn.disabled = true;
+    }
+
+    // Simulate payment processing delay
+    await new Promise(r => setTimeout(r, 1800));
+
+    try {
+      await this.api(`/api/events/${this.currentEventDetail.id}/register`, { method: 'POST' });
+      this.closeModal('payment');
+      this.showToast('\uD83C\uDF89 Payment successful! You\'re registered for the event.', 'success');
+      this.loadEvents();
+      // Refresh profile if open
+      if (document.getElementById('page-profile')?.classList.contains('active')) {
+        this.loadRegisteredEvents();
+      }
+    } catch (err) {
+      this.showToast(err.message || 'Payment failed. Please try again.', 'error');
+    } finally {
+      if (btn) {
+        const amtEl = document.getElementById('payment-btn-amount');
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pay ${amtEl?.textContent || ''}`;
+        btn.disabled = false;
+      }
+    }
+  }
+
+  formatCardNumber(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 16);
+    const parts = [];
+    for (let i = 0; i < v.length; i += 4) parts.push(v.substring(i, i + 4));
+    input.value = parts.join(' ');
+    // Update preview
+    const preview = document.getElementById('card-preview-number');
+    if (preview) {
+      const padded = v.padEnd(16, '\u2022');
+      preview.textContent = `${padded.substring(0,4)} ${padded.substring(4,8)} ${padded.substring(8,12)} ${padded.substring(12,16)}`;
+    }
+  }
+
+  formatExpiry(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2);
+    input.value = v;
+    const preview = document.getElementById('card-preview-expiry');
+    if (preview) preview.textContent = v || 'MM/YY';
   }
 
   async handleCreateEvent(e) {
@@ -205,7 +292,7 @@ class EventBookingApp {
     const endDate = document.getElementById('ev-end')?.value;
     const category = document.getElementById('ev-category')?.value;
     if (!title || !startDate || !endDate || !category) return this.showToast('Please fill in all required fields', 'error');
-    if (btn) { btn.textContent = 'Publishing…'; btn.disabled = true; }
+    if (btn) { btn.textContent = 'Publishing...'; btn.disabled = true; }
     try {
       const body = {
         title, category,
@@ -222,7 +309,7 @@ class EventBookingApp {
         enableWaitlist: document.getElementById('toggle-waitlist')?.classList.contains('on')
       };
       const res = await this.api('/api/events', { method: 'POST', body: JSON.stringify(body) });
-      this.showToast(`"${title}" published! ??`, 'success');
+      this.showToast(`"${title}" published!`, 'success');
       setTimeout(() => { this.showPage('home'); this.loadEvents(); }, 1000);
     } catch (err) {
       this.showToast(err.message || 'Failed to create event', 'error');
@@ -239,18 +326,20 @@ class EventBookingApp {
     const hdr = document.getElementById('dashboard-header-name');
     const hr = new Date().getHours();
     const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
-    if (hdr) hdr.textContent = `${greeting}, ${this.currentUser?.first_name || ''} ??`;
+    if (hdr) hdr.textContent = `${greeting}, ${this.currentUser?.first_name || ''}`;
     try {
       const data = await this.api('/api/user/dashboard');
       const s = data.stats;
-      const vals = document.querySelectorAll('.stat-card-value');
-      if (vals[0]) vals[0].textContent = s.totalEvents;
-      if (vals[1]) vals[1].textContent = s.totalAttendees;
-      if (vals[2]) vals[2].textContent = s.upcomingEvents;
-      if (vals[3]) vals[3].textContent = s.attending;
+      const te = document.getElementById('stat-total-events');
+      const ta = document.getElementById('stat-total-attendees');
+      const up = document.getElementById('stat-upcoming');
+      const at = document.getElementById('stat-attending');
+      if (te) te.textContent = s.totalEvents;
+      if (ta) ta.textContent = s.totalAttendees;
+      if (up) up.textContent = s.upcomingEvents;
+      if (at) at.textContent = s.attending;
       this.renderDashboardTable(data.myEvents);
       this.renderRecentSignups(data.recentSignups);
-      this.renderMiniChart(data.myEvents);
     } catch (err) { console.error('Dashboard error', err); }
   }
 
@@ -275,7 +364,7 @@ class EventBookingApp {
     if (!el) return;
     if (!signups?.length) { el.innerHTML = '<p style="color:var(--text-3);font-size:13px">No signups yet</p>'; return; }
     el.innerHTML = signups.map(s => `<div class="signup-row">
-      <div class="signup-avatar">${s.user?.initials || '?'}</div>
+      <div class="signup-avatar">${s.user?.initials || 'U'}</div>
       <div><div style="font-weight:600;font-size:13px">${s.user?.first_name || ''} ${s.user?.last_name || ''}</div>
       <div style="font-size:11px;color:var(--text-3)">${s.event?.title || ''}</div></div>
     </div>`).join('');
@@ -297,20 +386,68 @@ class EventBookingApp {
       const nd = document.getElementById('profile-name-display');
       if (nd) nd.textContent = `${data.first_name} ${data.last_name || ''}`.trim();
       const ph = document.getElementById('profile-handle');
-      if (ph) ph.textContent = `@${data.email?.split('@')[0]} · Member since ${new Date(data.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'})}`;
+      if (ph) ph.textContent = `@${data.email?.split('@')[0]} Â· Member since ${new Date(data.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'})}`;
       const bio = document.getElementById('profile-bio');
-      if (bio) bio.textContent = data.bio || 'No bio yet.';
+      if (bio) bio.textContent = data.bio || '';
       const av = document.getElementById('profile-avatar-display');
       if (av) av.textContent = data.initials || data.first_name?.[0]?.toUpperCase() || 'U';
-      const stats = document.querySelectorAll('.profile-stat strong');
-      if (stats[0]) stats[0].textContent = data.hosted_count || 0;
-      if (stats[1]) stats[1].textContent = data.attending_count || 0;
+      // Real stats from API
+      const hostedEl = document.getElementById('profile-stat-hosted');
+      const attendEl = document.getElementById('profile-stat-attended');
+      if (hostedEl) hostedEl.textContent = data.hosted_count ?? 0;
+      if (attendEl) attendEl.textContent = data.attending_count ?? 0;
     } catch {}
+    // Load registered events by default (first tab)
+    this.loadRegisteredEvents();
+  }
+
+  async loadRegisteredEvents() {
+    const upGrid = document.getElementById('profile-upcoming-grid');
+    const pastGrid = document.getElementById('profile-past-grid');
+    if (!upGrid || !pastGrid) return;
+    upGrid.innerHTML = '<div class="loading-grid"><div class="skeleton"></div><div class="skeleton"></div></div>';
+    pastGrid.innerHTML = '<div class="loading-grid"><div class="skeleton"></div><div class="skeleton"></div></div>';
+    try {
+      const data = await this.api('/api/user/registered-events');
+      const upcoming = data.upcoming || [];
+      const past = data.past || [];
+      upGrid.innerHTML = upcoming.length
+        ? upcoming.map(e => this.createEventCard(e)).join('')
+        : '<div class="empty-state"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:12px"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><h3>No upcoming events</h3><p>Register for events to see them here.</p></div>';
+      pastGrid.innerHTML = past.length
+        ? past.map(e => this.createEventCard(e)).join('')
+        : '<div class="empty-state" style="padding:20px 0"><p style="color:var(--text-3)">No past events yet.</p></div>';
+    } catch (err) {
+      upGrid.innerHTML = '<div class="empty-state"><p style="color:var(--text-3)">Could not load events.</p></div>';
+      pastGrid.innerHTML = '';
+    }
+  }
+
+  async loadHostedEvents() {
+    const grid = document.getElementById('profile-hosted-grid');
+    if (!grid) return;
+    grid.innerHTML = '<div class="loading-grid"><div class="skeleton"></div><div class="skeleton"></div></div>';
+    try {
+      const data = await this.api('/api/user/dashboard');
+      const events = data.myEvents || [];
+      grid.innerHTML = events.length
+        ? events.map(e => this.createEventCard(e)).join('')
+        : '<div class="empty-state"><h3>No events hosted yet</h3><p>Create your first event!</p></div>';
+    } catch { grid.innerHTML = '<div class="empty-state"><p>Could not load events.</p></div>'; }
   }
 
   switchProfileTab(btn, tab) {
     document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
+    // Hide all tab panels
+    ['registered', 'hosted'].forEach(id => {
+      const el = document.getElementById(`profile-tab-${id}`);
+      if (el) el.style.display = 'none';
+    });
+    const active = document.getElementById(`profile-tab-${tab}`);
+    if (active) active.style.display = 'block';
+    if (tab === 'registered') this.loadRegisteredEvents();
+    else if (tab === 'hosted') this.loadHostedEvents();
   }
 
   async loadCategories() {
@@ -350,7 +487,7 @@ class EventBookingApp {
       <input type="text" class="form-input" placeholder="Ticket name (e.g. General)" style="flex:2"/>
       <input type="number" class="form-input" placeholder="Price (0=Free)" min="0" step="0.01" style="flex:1"/>
       <input type="number" class="form-input" placeholder="Qty" min="1" style="flex:1"/>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tk-${id}').remove()">?</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tk-${id}').remove()" title="Remove" style="padding:4px 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`);
   }
 
@@ -419,13 +556,13 @@ class EventBookingApp {
   }
 
   toggleDropdown() {
-    const m = document.querySelector('.dropdown-menu');
-    if (m) m.classList.toggle('open');
+    const dd = document.getElementById('user-dropdown');
+    if (dd) dd.classList.toggle('open');
   }
 
   closeDropdown() {
-    const m = document.querySelector('.dropdown-menu');
-    if (m) m.classList.remove('open');
+    const dd = document.getElementById('user-dropdown');
+    if (dd) dd.classList.remove('open');
   }
 
   showToast(msg, type = 'info') {
@@ -433,8 +570,12 @@ class EventBookingApp {
     if (!c) return;
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    const icon = type === 'success' ? '?' : type === 'error' ? '?' : '?';
-    t.innerHTML = `<span>${icon}</span> ${msg}`;
+    const iconSvg = type === 'success'
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : type === 'error'
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    t.innerHTML = `<span style="display:inline-flex;align-items:center;margin-right:6px">${iconSvg}</span>${msg}`;
     c.appendChild(t);
     setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 400); }, 3500);
   }
@@ -467,7 +608,7 @@ class EventBookingApp {
         const id = e.target.id.replace('modal-','');
         this.closeModal(id);
       }
-      if (!e.target.closest('.dropdown')) this.closeDropdown();
+      if (!e.target.closest('#user-dropdown')) this.closeDropdown();
     });
   }
 }
@@ -479,6 +620,7 @@ window.closeModal = id => app.closeModal(id);
 window.switchAuthTab = t => app.switchAuthTab(t);
 window.handleLogout = () => app.handleLogout();
 window.handleRSVP = () => app.handleRSVP();
+window.handlePaymentSubmit = e => app.handlePaymentSubmit(e);
 window.handleShare = () => app.handleShare();
 window.loadMoreEvents = () => app.loadMoreEvents();
 window.addTicket = () => app.addTicket();
@@ -488,3 +630,5 @@ window.closeDropdown = () => app.closeDropdown();
 window.handleImageUpload = el => app.handleImageUpload(el);
 window.switchProfileTab = (btn, tab) => app.switchProfileTab(btn, tab);
 window.saveDraft = () => app.saveDraft();
+window.formatCardNumber = el => app.formatCardNumber(el);
+window.formatExpiry = el => app.formatExpiry(el);

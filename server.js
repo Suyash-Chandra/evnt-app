@@ -297,6 +297,31 @@ app.put("/api/user/profile", auth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+/* ----------------------- REGISTERED EVENTS ------------- */
+app.get("/api/user/registered-events", auth, async (req, res) => {
+    try {
+        const events = await q(`
+            SELECT e.*, ec.name AS category, ec.color AS category_color,
+                   CONCAT(u.first_name,' ',IFNULL(u.last_name,'')) AS organizer_name,
+                   (SELECT COUNT(*) FROM registrations r2 WHERE r2.event_id=e.id AND r2.status!='cancelled') AS attendee_count,
+                   reg.registered_at, reg.payment_status
+            FROM registrations reg
+            JOIN events e ON reg.event_id = e.id
+            JOIN users u ON e.organizer_id = u.id
+            LEFT JOIN event_categories ec ON e.category_id = ec.id
+            WHERE reg.user_id = ? AND reg.status != 'cancelled'
+            ORDER BY e.date_start ASC`, [req.user.id]);
+
+        const now = new Date();
+        const upcoming = events.filter(e => new Date(e.date_start) >= now);
+        const past = events.filter(e => new Date(e.date_start) < now);
+        res.json({ upcoming, past });
+    } catch (err) {
+        console.error("Registered events error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 /* ----------------------- SERVE SPA --------------------- */
 app.get("/{*path}", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
