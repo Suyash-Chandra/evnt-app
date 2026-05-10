@@ -322,7 +322,25 @@ app.get("/api/user/registered-events", auth, async (req, res) => {
     }
 });
 
+/* ----------------------- ORGANIZER ATTENDEES ------------- */
+app.get("/api/user/attendees", auth, async (req, res) => {
+    try {
+        const attendees = await q(`
+            SELECT u.first_name, u.last_name, u.email, e.title AS event_title, e.id AS event_id, reg.registered_at, reg.payment_status
+            FROM registrations reg
+            JOIN users u ON reg.user_id = u.id
+            JOIN events e ON reg.event_id = e.id
+            WHERE e.organizer_id = ? AND reg.status != 'cancelled'
+            ORDER BY reg.registered_at DESC`, [req.user.id]);
+        res.json(attendees);
+    } catch (err) {
+        console.error("Attendees error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 /* ----------------------- SERVE SPA --------------------- */
 app.get("/{*path}", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 app.listen(PORT, () => console.log(`\n?? Evnt App running at http://localhost:${PORT}\n`));
+

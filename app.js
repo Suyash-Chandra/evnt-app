@@ -15,6 +15,34 @@ class EventBookingApp {
     this.loadEvents();
     this.setDefaultDateTime();
     this.initTickets();
+    this.initTypewriter();
+  }
+
+  initTypewriter() {
+    const el = document.getElementById('hero-typewriter');
+    if (!el) return;
+    const text = "showing up for";
+    el.textContent = '';
+    el.style.borderRight = '2px solid var(--accent)';
+    el.style.paddingRight = '4px';
+    let i = 0;
+    
+    // Wait for the fade-up of the previous text (approx 0.8s) before starting typing
+    setTimeout(() => {
+      const type = () => {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, 60 + Math.random() * 40); // random typing speed
+        } else {
+          // Remove cursor after typing is done
+          setTimeout(() => {
+            el.style.borderRight = 'none';
+          }, 800); // Leave it for a brief moment before hiding
+        }
+      };
+      type();
+    }, 800);
   }
 
   async api(endpoint, opts = {}) {
@@ -127,7 +155,7 @@ class EventBookingApp {
     const img = event.image_url
       ? `<div class="event-card-image" style="background-image:url('${event.image_url}')"></div>`
       : `<div class="event-card-image" style="background:linear-gradient(${grad})"></div>`;
-    const price = event.price > 0 ? `<span class="price">$${parseFloat(event.price).toFixed(2)}</span>` : '<span class="price free">Free</span>';
+    const price = event.price > 0 ? `<span class="price">₹${parseFloat(event.price).toFixed(2)}</span>` : '<span class="price free">Free</span>';
     const spots = event.capacity ? `<span class="spots-left">${Math.max(0, event.capacity - event.attendee_count)} spots left</span>` : '';
     return `<div class="event-card" onclick="app.showEventDetail(${event.id})">
       ${img}
@@ -172,7 +200,7 @@ class EventBookingApp {
         <div class="detail-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${event.attendee_count} attending${event.capacity ? ' · '+Math.max(0,event.capacity-event.attendee_count)+' spots left' : ''}</div>
         ${event.description ? `<div class="detail-desc"><h4>About</h4><p>${event.description}</p></div>` : ''}
         <div class="detail-actions">
-          <span class="detail-price">${event.price > 0 ? '$'+parseFloat(event.price).toFixed(2) : 'Free'}</span>
+          <span class="detail-price">${event.price > 0 ? '₹'+parseFloat(event.price).toFixed(2) : 'Free'}</span>
           <button id="rsvp-modal-btn" class="btn btn-primary btn-lg" onclick="app.handleRSVP()">
             ${this.isLoggedIn ? 'Register to attend' : 'Sign in to register'}
           </button>
@@ -194,8 +222,8 @@ class EventBookingApp {
       const badgeEl = document.getElementById('payment-amount-badge');
       const btnAmtEl = document.getElementById('payment-btn-amount');
       if (nameEl) nameEl.textContent = event.title;
-      if (badgeEl) badgeEl.textContent = `$${price}`;
-      if (btnAmtEl) btnAmtEl.textContent = `$${price}`;
+      if (badgeEl) badgeEl.textContent = `₹${price}`;
+      if (btnAmtEl) btnAmtEl.textContent = `₹${price}`;
       // Reset form
       const form = document.getElementById('payment-form');
       if (form) form.reset();
@@ -303,6 +331,7 @@ class EventBookingApp {
         address: document.getElementById('ev-address')?.value,
         capacity: parseInt(document.getElementById('ev-capacity')?.value) || null,
         price: parseFloat(document.getElementById('ev-price')?.value) || 0,
+        imageUrl: this.currentUploadedImage || null,
         requireApproval: document.getElementById('toggle-approval')?.classList.contains('on'),
         showAttendees: document.getElementById('toggle-attendees')?.classList.contains('on'),
         sendReminders: document.getElementById('toggle-reminders')?.classList.contains('on'),
@@ -310,6 +339,10 @@ class EventBookingApp {
       };
       const res = await this.api('/api/events', { method: 'POST', body: JSON.stringify(body) });
       this.showToast(`"${title}" published!`, 'success');
+      this.currentUploadedImage = null; // Clear image
+      document.getElementById('create-event-form').reset();
+      const upload = document.querySelector('.cover-upload');
+      if (upload) upload.style.backgroundImage = 'none';
       setTimeout(() => { this.showPage('home'); this.loadEvents(); }, 1000);
     } catch (err) {
       this.showToast(err.message || 'Failed to create event', 'error');
@@ -339,46 +372,131 @@ class EventBookingApp {
       if (up) up.textContent = s.upcomingEvents;
       if (at) at.textContent = s.attending;
       this.renderDashboardTable(data.myEvents);
-      this.renderRecentSignups(data.recentSignups);
     } catch (err) { console.error('Dashboard error', err); }
   }
 
   renderDashboardTable(events) {
     const tbody = document.getElementById('dashboard-events-table');
     if (!tbody) return;
-    if (!events?.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px">No events yet. <a onclick="showPage(\'create\')" style="cursor:pointer;color:var(--accent)">Create one!</a></td></tr>'; return; }
+    if (!events?.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">No events yet. <a onclick="showPage(\'create\')" style="cursor:pointer;color:var(--accent)">Create one!</a></td></tr>'; return; }
     tbody.innerHTML = events.map(e => {
       const status = new Date(e.date_start) > new Date() ? 'upcoming' : 'past';
-      return `<tr>
+      return `<tr style="cursor:pointer" onclick="app.showOrganizerEventDetail(${e.id})">
         <td><strong>${e.title}</strong></td>
         <td>${this.formatDate(e.date_start)}</td>
         <td>${e.attendee_count || 0}${e.capacity ? '/'+e.capacity : ''}</td>
         <td><span class="status-badge ${status}">${status}</span></td>
-        <td>${e.price > 0 ? '$'+parseFloat(e.price).toFixed(2) : 'Free'}</td>
+        <td>${e.price > 0 ? '₹'+parseFloat(e.price).toFixed(2) : 'Free'}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #fca5a5; padding: 4px 8px; font-size: 12px; border-radius: 4px;" onclick="event.stopPropagation(); app.deleteEvent(${e.id})">Delete</button>
+        </td>
       </tr>`;
     }).join('');
   }
 
-  renderRecentSignups(signups) {
-    const el = document.getElementById('recent-signups');
-    if (!el) return;
-    if (!signups?.length) { el.innerHTML = '<p style="color:var(--text-3);font-size:13px">No signups yet</p>'; return; }
-    el.innerHTML = signups.map(s => `<div class="signup-row">
-      <div class="signup-avatar">${s.user?.initials || 'U'}</div>
-      <div><div style="font-weight:600;font-size:13px">${s.user?.first_name || ''} ${s.user?.last_name || ''}</div>
-      <div style="font-size:11px;color:var(--text-3)">${s.event?.title || ''}</div></div>
-    </div>`).join('');
+  async deleteEvent(eventId) {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+    try {
+      await this.api(`/api/events/${eventId}`, { method: 'DELETE' });
+      this.showToast('Event deleted successfully', 'success');
+      this.loadDashboard();
+      this.loadEvents(); // refresh public grid just in case
+    } catch (err) {
+      this.showToast(err.message || 'Failed to delete event', 'error');
+    }
   }
 
-  renderMiniChart(events) {
-    const el = document.getElementById('mini-chart');
-    if (!el) return;
-    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const vals = days.map(() => Math.floor(Math.random() * 20) + 1);
-    const max = Math.max(...vals);
-    el.innerHTML = vals.map((v,i) => `<div class="bar-wrap" title="${days[i]}: ${v}"><div class="bar" style="height:${(v/max)*100}%"></div></div>`).join('');
+  async showOrganizerEventDetail(eventId) {
+    try {
+      // Fetch event detail and all attendees
+      const [event, allAttendees] = await Promise.all([
+        this.api(`/api/events/${eventId}`),
+        this.api('/api/user/attendees')
+      ]);
+      const eventAttendees = allAttendees.filter(a => a.event_id == eventId);
+      
+      document.getElementById('org-detail-title').textContent = event.title;
+      document.getElementById('org-detail-attendees').textContent = eventAttendees.length;
+      document.getElementById('org-detail-revenue').textContent = '₹' + (eventAttendees.length * event.price).toFixed(2);
+      document.getElementById('org-detail-status').textContent = new Date(event.date_start) > new Date() ? 'Upcoming' : 'Past';
+      
+      const tbody = document.getElementById('org-detail-participants-body');
+      if (eventAttendees.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="padding:16px;text-align:center;color:var(--text-3)">No participants yet.</td></tr>';
+      } else {
+        tbody.innerHTML = eventAttendees.map(a => `
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px 8px;">${a.first_name} ${a.last_name || ''}</td>
+            <td style="padding: 12px 8px; color: var(--text-2);">${a.email}</td>
+            <td style="padding: 12px 8px; color: var(--text-2);">${new Date(a.registered_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
+      this.openModal('organizer-event');
+    } catch (err) {
+      this.showToast('Failed to load event details', 'error');
+    }
   }
 
+  async openExportModal() {
+    try {
+      const data = await this.api('/api/user/dashboard');
+      const select = document.getElementById('export-event-select');
+      if (select) {
+        select.innerHTML = '<option value="all">All Events</option>';
+        data.myEvents.forEach(e => {
+          select.innerHTML += `<option value="${e.id}">${e.title}</option>`;
+        });
+      }
+      this.openModal('export');
+    } catch (e) {
+      this.showToast(e.message, 'error');
+    }
+  }
+
+  async exportAttendees() {
+    try {
+      const btn = document.querySelector('#modal-export .btn-primary');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Generating...';
+      const selectedEventId = document.getElementById('export-event-select')?.value || 'all';
+      const attendees = await this.api('/api/user/attendees');
+      const filteredAttendees = selectedEventId === 'all' ? attendees : attendees.filter(a => a.event_id == selectedEventId);
+      if (!filteredAttendees || filteredAttendees.length === 0) throw new Error('No attendees found for selection');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(20);
+      doc.text('Event Attendees List', 14, 20);
+      doc.setFontSize(12);
+      doc.text("Generated on " + new Date().toLocaleDateString(), 14, 30);
+
+      const tableData = filteredAttendees.map(a => [
+        a.event_title,
+        (a.first_name + ' ' + (a.last_name || '')).trim(),
+        a.email,
+        new Date(a.registered_at).toLocaleDateString(),
+        a.payment_status === 'free' ? 'FREE' : 'Payment Successful'
+      ]);
+
+      doc.autoTable({
+        startY: 40,
+        head: [['Event', 'Attendee Name', 'Email', 'Registered Date', 'Payment Status']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [26, 25, 22] }
+      });
+
+      doc.save("attendees_" + selectedEventId + "_" + new Date().getTime() + ".pdf");
+      this.closeModal('export');
+      btn.innerHTML = originalText;
+      this.showToast('PDF Exported Successfully!', 'success');
+    } catch (e) {
+      this.showToast(e.message, 'error');
+      const btn = document.querySelector('#modal-export .btn-primary');
+      if (btn) btn.innerHTML = 'Download PDF';
+    }
+  }
   async loadProfile() {
     if (!this.isLoggedIn) return;
     try {
@@ -498,6 +616,7 @@ class EventBookingApp {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = e => {
+      this.currentUploadedImage = e.target.result;
       const upload = document.querySelector('.cover-upload');
       if (upload) upload.style.backgroundImage = `url(${e.target.result})`;
     };
@@ -632,3 +751,9 @@ window.switchProfileTab = (btn, tab) => app.switchProfileTab(btn, tab);
 window.saveDraft = () => app.saveDraft();
 window.formatCardNumber = el => app.formatCardNumber(el);
 window.formatExpiry = el => app.formatExpiry(el);
+
+
+
+
+
+
