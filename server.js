@@ -52,7 +52,7 @@ app.post("/api/auth/signup", async (req, res) => {
             "INSERT INTO users (email,password,first_name,last_name,initials,role) VALUES (?,?,?,?,?,?)",
             [email.toLowerCase(), hash, firstName, lastName || "", initials, "member"]
         );
-        await q("INSERT INTO user_profiles (user_id) VALUES (?)", [result.insertId]);
+
         res.status(201).json({ message: "Account created successfully" });
     } catch (err) {
         console.error("Signup error:", err);
@@ -82,6 +82,74 @@ app.get("/api/auth/me", auth, (req, res) => res.json({ user: req.user }));
 app.post("/api/auth/logout", (req, res) => {
     res.clearCookie("auth_token");
     res.json({ message: "Logged out" });
+});
+
+/* ── Forgot password ─────────────────────────────────────────────
+   Generates a secure random token, stores it in password_reset_tokens
+   (expires in 1 hour), and returns it in the response.
+   In a production app this token would be emailed — here it's returned
+   directly so the demo works without an SMTP server.         */
+app.post("/api/auth/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    try {
+        const user = await one("SELECT id, first_name FROM users WHERE email=?", [email.toLowerCase()]);
+        // Always return success to prevent email enumeration
+        if (!user) return res.json({ message: "If that email exists, a reset token has been generated." });
+
+        // Expire any existing unused tokens for this user
+        await q("UPDATE password_reset_tokens SET used=1 WHERE user_id=? AND used=0", [user.id]);
+
+        // Generate a 32-byte hex token
+        const crypto = require("crypto");
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        await q(
+            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?,?,?)",
+            [user.id, token, expiresAt]
+        );
+
+        res.json({
+            message: "Reset token generated.",
+            token,           // returned for demo purposes (would be emailed in production)
+            name: user.first_name
+        });
+    } catch (err) {
+        console.error("Forgot password error:", err);
+        res.status(500).json({ error: "Failed to generate reset token" });
+    }
+});
+
+/* ── Reset password ──────────────────────────────────────────────
+   Validates the token (must exist, be unused, and not expired),
+   hashes the new password, updates the users table, and marks
+   the token as used so it cannot be replayed.                */
+app.post("/api/auth/reset-password", async (req, res) => {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ error: "Token and new password are required" });
+    if (newPassword.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
+    try {
+        const record = await one(
+            `SELECT prt.id, prt.user_id, prt.expires_at, prt.used
+             FROM password_reset_tokens prt
+             WHERE prt.token = ?`,
+            [token]
+        );
+        if (!record)          return res.status(400).json({ error: "Invalid or expired reset token" });
+        if (record.used)      return res.status(400).json({ error: "This reset link has already been used" });
+        if (new Date(record.expires_at) < new Date())
+                              return res.status(400).json({ error: "This reset link has expired. Please request a new one." });
+
+        const hash = await bcrypt.hash(newPassword, 10);
+        await q("UPDATE users SET password=?, updated_at=NOW() WHERE id=?", [hash, record.user_id]);
+        await q("UPDATE password_reset_tokens SET used=1 WHERE id=?", [record.id]);
+
+        res.json({ message: "Password updated successfully. You can now sign in." });
+    } catch (err) {
+        console.error("Reset password error:", err);
+        res.status(500).json({ error: "Failed to reset password" });
+    }
 });
 
 /* ----------------------- CATEGORIES -------------------- */
@@ -141,21 +209,42 @@ app.post("/api/events", auth, async (req, res) => {
     const { title, description, category, type, startDate, endDate,
             location, address, capacity, price = 0, imageUrl,
             requireApproval, showAttendees, sendReminders, enableWaitlist } = req.body;
+
+    // ── Required fields ─────────────────────────────────────────────
     if (!title || !startDate || !endDate || !category)
         return res.status(400).json({ error: "Title, dates and category are required" });
-    if (new Date(startDate) >= new Date(endDate))
-        return res.status(400).json({ error: "End date must be after start date" });
+
+    // ── Date validations ─────────────────────────────────────────
+    const start = new Date(startDate);
+    const end   = new Date(endDate);
+    if (start <= new Date())
+        return res.status(400).json({ error: "Start date must be in the future" });
+    if (end <= start)
+        return res.status(400).json({ error: "End date must be after the start date" });
+
+    // ── Capacity validation ─────────────────────────────────────
+    const cap = capacity !== undefined && capacity !== null && capacity !== '' ? parseInt(capacity) : null;
+    if (cap !== null && cap < 1)
+        return res.status(400).json({ error: "Capacity must be at least 1, or leave it blank for unlimited" });
+
+    // ── Price validation ─────────────────────────────────────────
+    const parsedPrice = parseFloat(price) || 0;
+    if (parsedPrice < 0)
+        return res.status(400).json({ error: "Ticket price cannot be negative. Use 0 for a free event." });
+
     try {
         const cat = await one("SELECT id FROM event_categories WHERE name=?", [category]);
+        const ticketName = req.body.ticketName ? String(req.body.ticketName).trim().slice(0, 100) : null;
         const result = await q(`
             INSERT INTO events (organizer_id,title,description,category_id,event_mode,date_start,date_end,
-                                location,address,capacity,price,image_url,status,
+                                location,address,capacity,price,image_url,status,ticket_name,
                                 require_approval,show_attendees,send_reminders,enable_waitlist)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'published',?,?,?,?)`,
-            [req.user.id, title, description, cat?.id || null, (modeMap => modeMap[type] || 'offline')({"in-person":"offline","offline":"offline","online":"online","hybrid":"hybrid"}),
-             startDate, endDate, location, address, capacity || null,
-             parseFloat(price) || 0, imageUrl || null,
-             requireApproval ? 1 : 0, showAttendees !== false ? 1 : 0,
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'published',?,?,?,?,?)`,
+            [req.user.id, title, description, cat?.id || null,
+             (modeMap => modeMap[type] || 'offline')({"in-person":"offline","offline":"offline","online":"online","hybrid":"hybrid"}),
+             startDate, endDate, location, address, cap,
+             parsedPrice, imageUrl || null, ticketName,
+             requireApproval ? 1 : 0, 1,
              sendReminders !== false ? 1 : 0, enableWaitlist ? 1 : 0]);
         res.status(201).json({ id: result.insertId, message: "Event published successfully" });
     } catch (err) {
@@ -168,12 +257,29 @@ app.put("/api/events/:id", auth, async (req, res) => {
     try {
         const event = await one("SELECT id FROM events WHERE id=? AND organizer_id=?", [req.params.id, req.user.id]);
         if (!event) return res.status(404).json({ error: "Event not found or permission denied" });
+
         const { title, description, category, type, startDate, endDate, location, address, capacity, price, imageUrl } = req.body;
+
+        // ── Date validations (only if dates are being updated) ──────────────
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end   = new Date(endDate);
+            if (start <= new Date())
+                return res.status(400).json({ error: "Start date must be in the future" });
+            if (end <= start)
+                return res.status(400).json({ error: "End date must be after the start date" });
+        }
+
+        // ── Capacity validation ───────────────────────────────────────
+        const cap = capacity !== undefined && capacity !== null && capacity !== '' ? parseInt(capacity) : null;
+        if (cap !== null && cap < 1)
+            return res.status(400).json({ error: "Capacity must be at least 1, or leave blank for unlimited" });
+
         const cat = category ? await one("SELECT id FROM event_categories WHERE name=?", [category]) : null;
         await q(`UPDATE events SET title=?,description=?,category_id=?,event_mode=?,date_start=?,
                   date_end=?,location=?,address=?,capacity=?,price=?,image_url=? WHERE id=?`,
             [title, description, cat?.id || null, type, startDate, endDate, location, address,
-             capacity || null, parseFloat(price) || 0, imageUrl || null, req.params.id]);
+             cap, parseFloat(price) || 0, imageUrl || null, req.params.id]);
         res.json({ message: "Event updated" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -193,15 +299,41 @@ app.post("/api/events/:id/register", auth, async (req, res) => {
     try {
         const event = await one("SELECT * FROM events WHERE id=? AND status='published'", [eventId]);
         if (!event) return res.status(404).json({ error: "Event not found" });
+
+        // ── Time check: block registration after event has ended ──────────
+        if (new Date(event.date_end) < new Date())
+            return res.status(400).json({ error: "This event has already ended" });
+
+        // ── Organizer check ───────────────────────────────────────────────
         if (event.organizer_id === req.user.id)
             return res.status(400).json({ error: "You cannot register for your own event" });
+
+        // ── Capacity check (with waitlist support) ──────────────────────────
         if (event.capacity) {
-            const [cnt] = await pool.query("SELECT COUNT(*) AS c FROM registrations WHERE event_id=? AND status != 'cancelled'", [eventId]);
-            if (cnt[0].c >= event.capacity) return res.status(400).json({ error: "Event is fully booked" });
+            const [cnt] = await pool.query("SELECT COUNT(*) AS c FROM registrations WHERE event_id=? AND status NOT IN ('cancelled','waitlist')", [eventId]);
+            if (cnt[0].c >= event.capacity) {
+                if (event.enable_waitlist) {
+                    // Add to waitlist instead of rejecting
+                    await q("INSERT INTO registrations (event_id,user_id,payment_amount,payment_status,status) VALUES (?,?,?,?,?)",
+                        [eventId, req.user.id, 0, 'free', 'waitlist']);
+                    return res.json({ message: "Event is full — you've been added to the waitlist!", waitlisted: true });
+                } else {
+                    return res.status(400).json({ error: "This event is fully booked" });
+                }
+            }
         }
-        await q("INSERT INTO registrations (event_id,user_id,payment_amount,payment_status) VALUES (?,?,?,?)",
-            [eventId, req.user.id, event.price || 0, event.price > 0 ? "pending" : "free"]);
-        res.json({ message: "Registered successfully" });
+
+        // ── Determine registration status (approval required?) ──────────────
+        const regStatus = event.require_approval ? 'pending' : 'confirmed';
+        const payStatus = event.price > 0 ? 'paid' : 'free';
+
+        await q("INSERT INTO registrations (event_id,user_id,payment_amount,payment_status,status) VALUES (?,?,?,?,?)",
+            [eventId, req.user.id, event.price || 0, payStatus, regStatus]);
+
+        const msg = event.require_approval
+            ? "Registration submitted! The organizer will review and approve your request."
+            : "Registered successfully!";
+        res.json({ message: msg, pending: event.require_approval ? true : false });
     } catch (err) {
         if (err.code === "ER_DUP_ENTRY") return res.status(400).json({ error: "Already registered" });
         res.status(500).json({ error: err.message });
@@ -274,25 +406,19 @@ app.get("/api/user/profile", auth, async (req, res) => {
     try {
         const user = await one(`
             SELECT u.id,u.email,u.first_name,u.last_name,u.initials,u.bio,u.phone,u.avatar_url,u.created_at,
-                   up.company,up.job_title,up.website,up.linkedin,up.twitter,up.interests,
                    (SELECT COUNT(*) FROM events WHERE organizer_id=u.id) AS hosted_count,
                    (SELECT COUNT(*) FROM registrations WHERE user_id=u.id AND status!='cancelled') AS attending_count
-            FROM users u LEFT JOIN user_profiles up ON u.id=up.user_id WHERE u.id=?`, [req.user.id]);
+            FROM users u WHERE u.id=?`, [req.user.id]);
         res.json(user);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.put("/api/user/profile", auth, async (req, res) => {
     try {
-        const { firstName, lastName, phone, bio, company, jobTitle, website, linkedin, twitter } = req.body;
+        const { firstName, lastName, phone, bio } = req.body;
         const initials = `${(firstName||"U")[0]}${lastName ? lastName[0] : ""}`.toUpperCase();
         await q("UPDATE users SET first_name=?,last_name=?,phone=?,bio=?,initials=? WHERE id=?",
             [firstName, lastName, phone, bio, initials, req.user.id]);
-        await q(`INSERT INTO user_profiles (user_id,company,job_title,website,linkedin,twitter,interests)
-                 VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE
-                 company=VALUES(company),job_title=VALUES(job_title),website=VALUES(website),
-                 linkedin=VALUES(linkedin),twitter=VALUES(twitter)`,
-            [req.user.id, company, jobTitle, website, linkedin, twitter, null]);
         res.json({ message: "Profile updated" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -304,10 +430,13 @@ app.get("/api/user/registered-events", auth, async (req, res) => {
             SELECT e.*, ec.name AS category, ec.color AS category_color,
                    CONCAT(u.first_name,' ',IFNULL(u.last_name,'')) AS organizer_name,
                    (SELECT COUNT(*) FROM registrations r2 WHERE r2.event_id=e.id AND r2.status!='cancelled') AS attendee_count,
-                   reg.registered_at, reg.payment_status
+                   reg.id AS registration_id, reg.registered_at, reg.payment_status,
+                   CONCAT(me.first_name,' ',IFNULL(me.last_name,'')) AS attendee_name,
+                   e.ticket_name
             FROM registrations reg
             JOIN events e ON reg.event_id = e.id
             JOIN users u ON e.organizer_id = u.id
+            JOIN users me ON reg.user_id = me.id
             LEFT JOIN event_categories ec ON e.category_id = ec.id
             WHERE reg.user_id = ? AND reg.status != 'cancelled'
             ORDER BY e.date_start ASC`, [req.user.id]);

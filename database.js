@@ -34,19 +34,7 @@ async function initDb() {
               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB;
 
-            CREATE TABLE IF NOT EXISTS user_profiles (
-              id INT AUTO_INCREMENT PRIMARY KEY,
-              user_id INT UNIQUE NOT NULL,
-              company VARCHAR(255),
-              job_title VARCHAR(255),
-              website VARCHAR(255),
-              linkedin VARCHAR(255),
-              twitter VARCHAR(255),
-              interests TEXT,
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB;
+
 
             CREATE TABLE IF NOT EXISTS event_categories (
               id INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,6 +108,16 @@ async function initDb() {
               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB;
+
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+              id         INT AUTO_INCREMENT PRIMARY KEY,
+              user_id    INT NOT NULL,
+              token      VARCHAR(64) NOT NULL UNIQUE,
+              expires_at DATETIME NOT NULL,
+              used       BOOLEAN DEFAULT FALSE,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB;
         `);
 
         // Seed categories
@@ -137,6 +135,30 @@ async function initDb() {
             ('education','Educational events','book','#14b8a6'),
             ('other','Other events','calendar','#6b7280')
         `);
+
+        // Safely add ticket_name column — works on MySQL 5.7+ and 8.0+
+        const [colCheck] = await conn.query(`
+            SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME   = 'events'
+              AND COLUMN_NAME  = 'ticket_name'
+        `);
+        if (colCheck[0].cnt === 0) {
+            await conn.query(`ALTER TABLE events ADD COLUMN ticket_name VARCHAR(100) DEFAULT NULL`);
+            console.log('✅ Added ticket_name column to events');
+        }
+
+        // Safely add updated_at to registrations if missing
+        const [regColCheck] = await conn.query(`
+            SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME   = 'registrations'
+              AND COLUMN_NAME  = 'updated_at'
+        `);
+        if (regColCheck[0].cnt === 0) {
+            await conn.query(`ALTER TABLE registrations ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`);
+            console.log('✅ Added updated_at column to registrations');
+        }
 
         console.log('✅ Database tables ready');
     } catch (err) {
